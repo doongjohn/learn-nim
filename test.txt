@@ -1,0 +1,14 @@
+<Nim: Hello World>
+import std/strformat
+
+let hello = "hello"
+let world = "world"
+
+if true
+  stdout.write hello
+  stdout.write &"{world}\n"
+
+<나비보벳따우 가사>
+나비보벳따우 봅 보벳띠 보빗 따우
+나비보벳따우 봅 보벳띠 나비벳 뽀
+휘휘휘휘휘휘휘~ 빗뽀벳 뻬~뺘빗뽀
