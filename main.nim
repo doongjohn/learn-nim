@@ -393,8 +393,7 @@ block:
 
   echo "\nAfter setting the refs to nil...\n"
   
-  # Nim's "ref object" is reference counted. (And also it's a Strong Referance. Nim has no builtin Weak Referance.)
-  # So in order to "free" ref object you need to nullify every referances. (just like C# class objects.)
+  # In order to "free" ref object you need to nullify every referances. (just like C# class objects.)
   personRefA = nil;
   personRefB = nil;
   for i in 0 ..< presonRefSeq.len: presonRefSeq[i] = nil
