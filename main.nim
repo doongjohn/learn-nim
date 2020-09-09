@@ -67,13 +67,13 @@ block sol4:
   echo output
 
 # --------------------------------------------------------
-# array slice
+# array slice (can be improved after the openArray update.)
 # --------------------------------------------------------
 block:
   var someArray = "Hello world!"
   var someArray2 = someArray[0 .. ^5]
   var someArray3 = someArray[0 .. 3] & someArray[7 .. 10]
-
+  
   for i in someArray: stdout.write i
   echo ""
   for i in someArray2: stdout.write i
@@ -292,7 +292,7 @@ writeHorizontalFill()
 
 
 # --------------------------------------------------------
-echo "\n- shared clouser -"
+echo "\n- shared closures -"
 block:
   template defSayText(text: string): untyped =
     proc sayText() =
