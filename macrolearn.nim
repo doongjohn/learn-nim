@@ -32,3 +32,13 @@ template nameof*(x: untyped): string =
     nameofAux(x)
   else:
     {.error: "'" & x.repr & "' is not defined" .}
+
+
+proc toArray*[S: static string](): array[S.len, char] =
+  for i, c in S:
+    result[i] = c
+
+# This does not work!
+# proc toArray*(str: static string): array[str.len, char] =
+#   for i, c in str:
+#     result[i] = c

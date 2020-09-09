@@ -211,13 +211,13 @@ writeHorizontalFill()
 # --------------------------------------------------------
 echo "\n- template -"
 block:
+  echo "Template Copy Pastes code"
+
   template test() =
     defer: echo "template defer"
 
   proc testProc() =
     defer: echo "proc defer"
-
-  echo "Template Copy Pastes code"
 
   defer: echo "#1 defer"
   test()
@@ -292,6 +292,33 @@ writeHorizontalFill()
 
 
 # --------------------------------------------------------
+echo "\n- shared clouser -"
+block:
+  template defSayText(text: string): untyped =
+    proc sayText() =
+      echo text
+    sayText
+
+  template defSetText(text: string): untyped =
+    proc setText(newText: string) =
+      text = newText
+    setText
+
+  let (sayText, setText) = block:
+    var text = "Hello Nim!"
+    (
+      defSayText(text), 
+      defSetText(text)
+    )
+
+  sayText()
+  setText("Hello world!")
+  sayText()
+# --------------------------------------------------------
+writeHorizontalFill()
+
+
+# --------------------------------------------------------
 echo "\n- options -"
 block:
   proc find(text: string, toFind: char): Option[int] =
@@ -332,6 +359,7 @@ block:
     stdout.write SomeEnum(i)
 # --------------------------------------------------------
 writeHorizontalFill()
+
 
 # --------------------------------------------------------
 echo "\n- object -"
@@ -393,7 +421,7 @@ block:
 
   echo "\nAfter setting the refs to nil...\n"
   
-  # In order to "free" ref object you need to nullify every referances. (just like C# class objects.)
+  # In order to "free" ref object you need to nullify every references. (just like C# class objects.)
   personRefA = nil;
   personRefB = nil;
   for i in 0 ..< presonRefSeq.len: presonRefSeq[i] = nil
