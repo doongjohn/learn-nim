@@ -5,7 +5,6 @@ import std/strutils
 import std/strformat
 from std/unicode
   import toRunes, toUTF8, reversed
-import console/console
 import console/consoleutils
 import timecode
 
@@ -21,6 +20,7 @@ writeHorizontalFill()
 
 # --------------------------------------------------------
 echo "\n- string and array -"
+writeHorizontalFill()
 # --------------------------------------------------------
 # fromat string
 # --------------------------------------------------------
@@ -33,32 +33,38 @@ block:
   echo &"someString: {hello.strip()}\nsomeFloat: {someFloat.formatFloat(ffDecimal, 3)}\n"
 
 # --------------------------------------------------------
-# get each runes
+# get each utf8 runes
 # --------------------------------------------------------
 block:
   stdout.write "write unicode string: "
-  for i, s in consoleReadLine().toRunes(): # unicode module
+  let runes = stdin.readLine().toRunes() # unicode module
+  for i, s in runes:
     echo &"{i}: {s}"
 
 # --------------------------------------------------------
 # reverse string
 # --------------------------------------------------------
+echo "\nreverse string:"
+
 block sol1:
   let input = "Hello world!"
   var output: string
-  for i in countdown(input.high, 0): output.add input[i]
+  for i in countdown(input.high, 0):
+    output.add input[i]
   echo output
 
 block sol2:
   let input = "Hello world!"
   var output: string
-  for c in input: output = c & output
+  for c in input:
+    output = c & output
   echo output
 
 block sol3:
   let input = "Hello world!"
   var output = newString input.len
-  for i, c in input: output[output.high - i] = c
+  for i, c in input:
+    output[output.high - i] = c
   echo output
 
 block sol4:
@@ -67,25 +73,25 @@ block sol4:
   echo output
 
 # --------------------------------------------------------
-# array slice (can be improved after the openArray update.)
+# slice
 # --------------------------------------------------------
+echo "\narray slice:"
+
 block:
   var someArray = "Hello world!"
   var someArray2 = someArray[0 .. ^5]
   var someArray3 = someArray[0 .. 3] & someArray[7 .. 10]
   
-  for i in someArray: stdout.write i
-  echo ""
-  for i in someArray2: stdout.write i
-  echo ""
-  for i in someArray3: stdout.write i
-  echo ""
+  echo someArray
+  echo someArray2
+  echo someArray3
 # --------------------------------------------------------
 writeHorizontalFill()
 
 
 # --------------------------------------------------------
 echo "\n- loop -"
+writeHorizontalFill()
 block:
 # --------------------------------------------------------
 # while
@@ -101,18 +107,18 @@ block:
 # for
 # --------------------------------------------------------
   echo "classic for loop"
-  for i in 0..<10:
+  for i in 0 ..< 10:
     echo i
   
   echo ""
 
   echo "for each"
-  for i, item in @[1, 3, 5, 4, 6]:
+  for i, item in [1, 3, 5, 4, 6]:
     echo &"[{i}]: {item}"
   
   echo ""
 
-  for k, v in items(@[(person: "You", power: 100), (person: "Me", power: 9000)]):
+  for k, v in [(person: "You", power: 100), (person: "Me", power: 9000)]:
     echo &"{k}: {v} power."
 # --------------------------------------------------------
 writeHorizontalFill()
@@ -120,6 +126,7 @@ writeHorizontalFill()
 
 # --------------------------------------------------------
 echo "\n- time -"
+writeHorizontalFill()
 block:
 # --------------------------------------------------------
 # simple benchmark
@@ -136,6 +143,7 @@ writeHorizontalFill()
 
 # --------------------------------------------------------
 echo "\n- std macro -"
+writeHorizontalFill()
 block:
 # --------------------------------------------------------
 # with
@@ -172,9 +180,10 @@ writeHorizontalFill()
 
 # --------------------------------------------------------
 echo "\n- tuple -"
+writeHorizontalFill()
 block:
   # 주소 예시 소스: https://dorojuso.kr/서울특별시/서대문구/홍은제1동?page=67
-  var homeAddress: tuple[street: string, buildingNumber: int, buildingName: string] = (
+  var homeAddress = (
     street: "홍지문길",
     buildingNumber: 7,
     buildingName: "대진하이츠빌라"
@@ -185,15 +194,16 @@ block:
   var
     a = 10
     b = 20
-  echo &"a = {a}, b = {b}"
+  echo &"{a = }, {b = }"
   (a, b) = (b, a)
-  echo &"a = {a}, b = {b}"
+  echo &"{a = }, {b = }"
 # --------------------------------------------------------
 writeHorizontalFill()
 
 
 # --------------------------------------------------------
 echo "\n- defer -"
+writeHorizontalFill()
 block:
   defer: 
     echo "#1.1 defer"
@@ -210,6 +220,7 @@ writeHorizontalFill()
 
 # --------------------------------------------------------
 echo "\n- template -"
+writeHorizontalFill()
 block:
   echo "Template Copy Pastes code"
 
@@ -229,6 +240,7 @@ writeHorizontalFill()
 
 # --------------------------------------------------------
 echo "\n- proc & func -"
+writeHorizontalFill()
 block:
   echo "proc & func can be nested:"
   proc outerProc() =
@@ -253,20 +265,21 @@ writeHorizontalFill()
 
 # --------------------------------------------------------
 echo "\n- lambda -"
+writeHorizontalFill()
 block:
   proc lambdaTest(lambdaProc: () -> string, b: int) =
     echo lambdaProc()
   
   echo "Singleline Lambda:"
-  lambdaTest(proc: string = "Lambda Return value", 10)
-  lambdaTest(() => "Lambda Return value (sugar)", 10)
+  lambdaTest(proc: string = "Lambda return value", 10)
+  lambdaTest(() => "Lambda return value (sugar)", 10)
   
   echo "\nMultiline Lambda:"
   lambdaTest(
     proc: string =
       echo "Lambda echo"
       if true: 
-        "Lambda Return value"
+        "Lambda return value"
       else:
         "Nope",
     10
@@ -276,7 +289,7 @@ block:
       block: 
         echo "Lambda echo (sugar) "
         if true: 
-          "Lambda Return value (sugar)"
+          "Lambda return value (sugar)"
         else:
           "Nope"
     ),
@@ -286,13 +299,14 @@ block:
   # () => (block: ...)
   #       ^^^^^^^^^^^^
   #       |
-  #       this is necessary for the multi line code.
+  #       this is necessary for the multi line lambda with sugar.
 # --------------------------------------------------------
 writeHorizontalFill()
 
 
 # --------------------------------------------------------
 echo "\n- shared closures -"
+writeHorizontalFill()
 block:
   template defSayText(text: string): untyped =
     proc sayText() =
@@ -320,13 +334,14 @@ writeHorizontalFill()
 
 # --------------------------------------------------------
 echo "\n- options -"
+writeHorizontalFill()
 block:
   proc find(text: string, toFind: char): Option[int] =
     for i, c in text:
       if c == toFind:
         return some(i)
     return none(int)  # This line is actually optional,
-                      # because the default is empty
+                      # because the default is none
   
   var found = "abc".find('c')
   if found.isSome:
@@ -342,6 +357,7 @@ writeHorizontalFill()
 # enum
 #---------------------------------------------------------
 echo "\n- enums -"
+writeHorizontalFill()
 block:
   type SomeEnum = enum
     A = 0,
@@ -357,12 +373,15 @@ block:
   for i in enumRange[SomeEnum]():
     if not SomeEnum.hasOrd(i): continue
     stdout.write SomeEnum(i)
+
+  echo ""
 # --------------------------------------------------------
 writeHorizontalFill()
 
 
 # --------------------------------------------------------
 echo "\n- object -"
+writeHorizontalFill()
 # --------------------------------------------------------
 # value and reference type
 # --------------------------------------------------------
@@ -421,7 +440,7 @@ block:
 
   echo "\nAfter setting the refs to nil...\n"
   
-  # In order to "free" ref object you need to nullify every references. (just like C# class objects.)
+  # In order to "free" ref object you need to nullify every references.
   personRefA = nil;
   personRefB = nil;
   for i in 0 ..< presonRefSeq.len: presonRefSeq[i] = nil
@@ -456,9 +475,10 @@ writeHorizontalFill()
 
 # --------------------------------------------------------
 echo "\n- file read & write -"
+writeHorizontalFill()
 block:
-  let textFile = open( "./test.txt", FileMode.fmReadWrite)
-  defer: close textFile
+  let textFile = "./test.txt".open(fmReadWrite)
+  defer: textFile.close
 
   textFile.write:
     """

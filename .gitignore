@@ -1,4 +1,6 @@
-*.exe
 nimcache/
 nimblecache/
 htmldocs/
+
+main
+*.exe

@@ -1,9 +1,8 @@
 import std/sugar
+import std/math
 import std/strutils
 import std/strformat
-import std/math
 import std/terminal
-import console
 
 
 proc writeHorizontalFill*(fillWith: char = '-') =
@@ -23,7 +22,7 @@ proc consoleReadLineParse*[T](parseProc: (string) -> T): T =
   var input: string
   while true:
     try:
-      input = consoleReadLine()
+      input = stdin.readLine()
       return input.parseProc()
     except:
       echo &"Can't parse \"{input}\" to type: \"{$T}\""
@@ -34,7 +33,7 @@ proc consoleReadLineParse*[T](parseProc: (string) -> T, prompt: string): T =
   while true:
     try:
       stdout.write prompt
-      input = consoleReadLine()
+      input = stdin.readLine()
       return input.parseProc()
     except:
       echo &"Can't parse \"{input}\" to type: \"{$T}\""
@@ -45,7 +44,7 @@ proc consoleReadLineParse*[T](parseProc: (string) -> T, prompt: string, errorMsg
   while true:
     try:
       stdout.write prompt
-      input = consoleReadLine()
+      input = stdin.readLine()
       return input.parseProc()
     except:
       echo errorMsg(input)
