@@ -28,7 +28,7 @@ block:
   let
     hello = "   Hello Nim!   "
     someFloat = 0.123456
-  
+
   echo "someString: " & hello.strip() & "\nsomeFloat: " & someFloat.formatFloat(ffDecimal, 3) & "\n"
   echo &"someString: {hello.strip()}\nsomeFloat: {someFloat.formatFloat(ffDecimal, 3)}\n"
 
@@ -81,7 +81,7 @@ block:
   var someArray = "Hello world!"
   var someArray2 = someArray[0 .. ^5]
   var someArray3 = someArray[0 .. 3] & someArray[7 .. 10]
-  
+
   echo someArray
   echo someArray2
   echo someArray3
@@ -100,7 +100,6 @@ block:
   while true:
     echo "break"
     break
-  
   echo ""
 
 # --------------------------------------------------------
@@ -108,14 +107,14 @@ block:
 # --------------------------------------------------------
   echo "classic for loop"
   for i in 0 ..< 10:
-    echo i
-  
-  echo ""
+    stdout.write $i & " "
+
+  echo "\n"
 
   echo "for each"
   for i, item in [1, 3, 5, 4, 6]:
     echo &"[{i}]: {item}"
-  
+
   echo ""
 
   for k, v in [(person: "You", power: 100), (person: "Me", power: 9000)]:
@@ -205,7 +204,7 @@ writeHorizontalFill()
 echo "\n- defer -"
 writeHorizontalFill()
 block:
-  defer: 
+  defer:
     echo "#1.1 defer"
     echo "#1.2 defer"
   defer:
@@ -248,15 +247,15 @@ block:
       echo "inner proc"
     echo "outer proc"
     innerProc()
-  
+
   outerProc()
 
   echo "\nfunc can't have side effect but can still change the var(c#: ref) parameter:"
   var someNumber = 10
-  echo &"someNumber: {someNumber}"
   func noSideEffectProc(param: var int) =
     param = 100
-  
+
+  echo &"someNumber: {someNumber}"
   noSideEffectProc(someNumber)
   echo &"someNumber: {someNumber}"
 # --------------------------------------------------------
@@ -267,31 +266,30 @@ writeHorizontalFill()
 echo "\n- lambda -"
 writeHorizontalFill()
 block:
-  proc lambdaTest(lambdaProc: () -> string, b: int) =
+  proc lambda(lambdaProc: () -> string, b: int) =
     echo lambdaProc()
-  
+
   echo "Singleline Lambda:"
-  lambdaTest(proc: string = "Lambda return value", 10)
-  lambdaTest(() => "Lambda return value (sugar)", 10)
-  
+  lambda(proc: string = "result", 10)
+  lambda(() => "result (sugar)", 10)
+
   echo "\nMultiline Lambda:"
-  lambdaTest(
+  lambda(
     proc: string =
-      echo "Lambda echo"
-      if true: 
-        "Lambda return value"
+      echo "echo"
+      if true:
+        "result"
       else:
         "Nope",
     10
   )
-  lambdaTest(
-    () => ( 
-      block: 
-        echo "Lambda echo (sugar) "
-        if true: 
-          "Lambda return value (sugar)"
-        else:
-          "Nope"
+  lambda(
+    () => (block:
+      echo "echo (sugar) "
+      if true:
+        "result (sugar)"
+      else:
+        "Nope"
     ),
     10
   )
@@ -321,7 +319,7 @@ block:
   let (sayText, setText) = block:
     var text = "Hello Nim!"
     (
-      defSayText(text), 
+      defSayText(text),
       defSetText(text)
     )
 
@@ -340,9 +338,9 @@ block:
     for i, c in text:
       if c == toFind:
         return some(i)
-    return none(int)  # This line is actually optional,
+    return none(int) # This line is actually optional,
                       # because the default is none
-  
+
   var found = "abc".find('c')
   if found.isSome:
     echo found.get()
@@ -391,10 +389,10 @@ block:
     Person = object
       name: string
       age: int
-    
+
     # reference type
     PersonRef = ref Person
-  
+
   proc setNameAndAge(
       preson: var Person,
       name: typeof(preson.name),
@@ -402,7 +400,7 @@ block:
     ) =
     preson.name = name;
     preson.age = age;
-  
+
   proc setNameAndAge(
       preson: PersonRef,
       name: typeof(preson.name),
@@ -415,17 +413,17 @@ block:
   var personB = Person(name: "B", age: 20)
   var personRefA = PersonRef(name: "A", age: 10)
   var personRefB = PersonRef(name: "B", age: 20)
-  
+
   var presonSeq = newSeq[Person]()
   var presonRefSeq = newSeq[PersonRef]()
   presonSeq.add([personA, personB])
   presonRefSeq.add([personRefA, personRefB])
-  
+
   echo "Person Seq:"
   for person in presonSeq: echo &"name: {person.name}, age: {person.age}"
   echo "PersonRef Seq:"
   for person in presonRefSeq: echo &"name: {person.name}, age: {person.age}"
-  
+
   # Modify original data
   personA.setNameAndAge("WOW_A", 100)
   personB.setNameAndAge("WOW_B", 200)
@@ -439,14 +437,14 @@ block:
   for person in presonRefSeq: echo &"name: {person.name}, age: {person.age}"
 
   echo "\nAfter setting the refs to nil...\n"
-  
+
   # In order to "free" ref object you need to nullify every references.
   personRefA = nil;
   personRefB = nil;
   for i in 0 ..< presonRefSeq.len: presonRefSeq[i] = nil
-  
+
   echo "PersonRef Seq:"
-  for person in presonRefSeq: 
+  for person in presonRefSeq:
     if person != nil:
       echo &"name: {person.name}, age: {person.age}"
     else:
@@ -492,7 +490,7 @@ block:
     ··stdout.write hello
     ··stdout.write &"{world}\n"
     """.unindent().replace(r"··", "  ")
-  
+
   textFile.write:
     """
     
