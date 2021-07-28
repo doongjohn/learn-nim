@@ -8,6 +8,16 @@ from std/unicode
 import console/consoleutils
 import timecode
 
+import std/compilesettings
+
+static:
+  echo "[comp settings] outFile: ", querySetting(outFile) 
+  echo "[comp settings] outDir: ", querySetting(outDir) 
+  echo "[comp settings] projectName: ", querySetting(projectName) 
+  echo "[comp settings] outprojectPathFile: ", querySetting(projectPath) 
+  echo "[comp settings] projectFull: ", querySetting(projectFull) 
+  echo "[comp settings] command: ", querySetting(command)
+
 
 # -------------------------------------------------
 # learning nim!
