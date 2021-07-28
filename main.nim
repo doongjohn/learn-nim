@@ -486,6 +486,7 @@ method print(b: B, a: A) = echo "ba"
 let a = A()
 let b = B()
 
+echo "Method: dynamic dispatch"
 a.print(b.A) # -> aa
 b.print(b) # -> bb
 a.print(b) # -> ab
