@@ -40,7 +40,7 @@ block:
     someFloat = 0.123456
 
   echo "someString: " & hello.strip() & "\nsomeFloat: " & someFloat.formatFloat(ffDecimal, 3) & "\n"
-  echo &"someString: {hello.strip()}\nsomeFloat: {someFloat.formatFloat(ffDecimal, 3)}\n"
+  echo "someString: {hello.strip()}\nsomeFloat: {someFloat.formatFloat(ffDecimal, 3)}\n".fmt
 
 # -------------------------------------------------
 # get each utf8 runes
@@ -49,7 +49,7 @@ block:
   stdout.write "write unicode string: "
   let runes = stdin.readLine().toRunes() # unicode module
   for i, s in runes:
-    echo &"{i}: {s}"
+    echo "{i}: {s}".fmt
 
 # -------------------------------------------------
 # reverse string
@@ -123,12 +123,12 @@ block:
 
   echo "for each"
   for i, item in [1, 3, 5, 4, 6]:
-    echo &"[{i}]: {item}"
+    echo "[{i}]: {item}".fmt
 
   echo ""
 
   for i, (k, v) in [(person: "You", power: 100), (person: "Me", power: 9000)]:
-    echo &"{k} have {v} power."
+    echo "{k} have {v} power.".fmt
 # -------------------------------------------------
 writeHorizontalFill()
 
@@ -145,7 +145,7 @@ block:
   proc fibbonacci(n: int): int =
     if n <= 1: n else: fibbonacci(n - 1) + fibbonacci(n - 2)
 
-  timeCode: echo &"fibbonacci {fibbNum} = {fibbonacci fibbNum}"
+  timeCode: echo "fibbonacci {fibbNum} = {fibbonacci fibbNum}".fmt
 # -------------------------------------------------
 writeHorizontalFill()
 
@@ -181,8 +181,8 @@ block:
       if i mod 2 != 0:
         i
 
-  echo &"\nGet Odd Numbers from {randomInts}"
-  echo &"result: {oddSeq}"
+  echo "\nGet Odd Numbers from {randomInts}".fmt
+  echo "result: {oddSeq}".fmt
 # -------------------------------------------------
 writeHorizontalFill()
 
@@ -197,15 +197,15 @@ block:
     buildingNumber: 7,
     buildingName: "대진하이츠빌라"
   )
-  echo &"{homeAddress.street} {homeAddress.buildingNumber} {homeAddress.buildingName}\n"
+  echo "{homeAddress.street} {homeAddress.buildingNumber} {homeAddress.buildingName}\n".fmt
 
   echo "Value swap using Tuple:"
   var
     a = 10
     b = 20
-  echo &"{a = }, {b = }"
+  echo "{a = }, {b = }".fmt
   (a, b) = (b, a)
-  echo &"{a = }, {b = }"
+  echo "{a = }, {b = }".fmt
 # -------------------------------------------------
 writeHorizontalFill()
 
@@ -265,9 +265,9 @@ block:
   func noSideEffectProc(param: var int) =
     param = 100
 
-  echo &"someNumber: {someNumber}"
+  echo "someNumber: {someNumber}".fmt
   noSideEffectProc(someNumber)
-  echo &"someNumber: {someNumber}"
+  echo "someNumber: {someNumber}".fmt
 # -------------------------------------------------
 writeHorizontalFill()
 
@@ -373,7 +373,7 @@ block:
     C = 3
 
   proc hasOrd(T: typedesc[enum], i: int): bool {.inline.} =
-    try: result = $T(i) != &"{i} (invalid data!)"
+    try: result = $T(i) != "{i} (invalid data!)".fmt
     except: result = false
 
   proc enumRange[T: enum](): Slice[int] {.inline.} = result = T.low.ord .. T.high.ord
@@ -430,9 +430,9 @@ block:
   presonRefSeq.add([personRefA, personRefB])
 
   echo "Person Seq:"
-  for person in presonSeq: echo &"name: {person.name}, age: {person.age}"
+  for person in presonSeq: echo "name: {person.name}, age: {person.age}".fmt
   echo "PersonRef Seq:"
-  for person in presonRefSeq: echo &"name: {person.name}, age: {person.age}"
+  for person in presonRefSeq: echo "name: {person.name}, age: {person.age}".fmt
 
   # Modify original data
   personA.setNameAndAge("WOW_A", 100)
@@ -442,9 +442,9 @@ block:
   echo "\nAfter modifing the original objects...\n"
 
   echo "Person Seq:"
-  for person in presonSeq: echo &"name: {person.name}, age: {person.age}"
+  for person in presonSeq: echo "name: {person.name}, age: {person.age}".fmt
   echo "PersonRef Seq:"
-  for person in presonRefSeq: echo &"name: {person.name}, age: {person.age}"
+  for person in presonRefSeq: echo "name: {person.name}, age: {person.age}".fmt
 
   echo "\nAfter setting the refs to nil...\n"
 
@@ -456,7 +456,7 @@ block:
   echo "PersonRef Seq:"
   for person in presonRefSeq:
     if person != nil:
-      echo &"name: {person.name}, age: {person.age}"
+      echo "name: {person.name}, age: {person.age}".fmt
     else:
       echo "nil"
 
@@ -467,11 +467,11 @@ type
   A = ref object of RootObj
   B = ref object of A
 
-proc print(a1, a2: A) = echo "aa"
-proc print(a: A, b: B) = echo "ab"
+method print(a1, a2: A) = echo "aa"
+method print(a: A, b: B) = echo "ab"
 
-proc print(b1, b2: B) = echo "bb"
-proc print(b: B, a: A) = echo "ba"
+method print(b1, b2: B) = echo "bb"
+method print(b: B, a: A) = echo "ba"
 
 let a = A()
 let b = B()
@@ -479,7 +479,7 @@ let b = B()
 a.print(b.A) # -> aa
 b.print(b) # -> bb
 a.print(b) # -> ab
-b.A.print(b) # -> ab
+b.A.print(b) # -> bb
 b.print(b.A) # -> ba
 # -------------------------------------------------
 writeHorizontalFill()
