@@ -446,9 +446,19 @@ block:
   echo "PersonRef Seq:"
   for person in presonRefSeq: echo "name: {person.name}, age: {person.age}".fmt
 
-  echo "\nAfter setting the refs to nil...\n"
+  # --gc:refc 
+  # This is the default GC. It's a deferred reference counting based garbage collector with a simple Mark&Sweep backup GC in order to collect cycles. 
+  # Heaps are thread-local.
 
-  # In order to "free" ref object you need to nullify every references.
+  # --gc:arc
+  # Plain reference counting with move semantic optimizations, offers a shared heap.
+  # It offers deterministic performance for hard realtime systems. Reference cycles cause memory leaks, beware.
+
+  # --gc:orc
+  # Same as --gc:arc but adds a cycle collector based on "trial deletion".
+  # Unfortunately, that makes its performance profile hard to reason about so it is less useful for hard real-time systems.
+
+  echo "\nAfter setting the refs to nil...\n"
   personRefA = nil;
   personRefB = nil;
   for i in 0 ..< presonRefSeq.len: presonRefSeq[i] = nil
@@ -463,24 +473,24 @@ block:
 # -------------------------------------------------
 # method overloading
 # -------------------------------------------------
-type
-  A = ref object of RootObj
-  B = ref object of A
+  type
+    A = ref object of RootObj
+    B = ref object of A
 
-method print(a1, a2: A) = echo "aa"
-method print(a: A, b: B) = echo "ab"
+  method print(a1, a2: A) = echo "aa"
+  method print(a: A, b: B) = echo "ab"
 
-method print(b1, b2: B) = echo "bb"
-method print(b: B, a: A) = echo "ba"
+  method print(b1, b2: B) = echo "bb"
+  method print(b: B, a: A) = echo "ba"
 
-let a = A()
-let b = B()
+  let a = A()
+  let b = B()
 
-a.print(b.A) # -> aa
-b.print(b) # -> bb
-a.print(b) # -> ab
-b.A.print(b) # -> bb
-b.print(b.A) # -> ba
+  a.print(b.A) # -> aa
+  b.print(b) # -> bb
+  a.print(b) # -> ab
+  b.A.print(b) # -> bb
+  b.print(b.A) # -> ba
 # -------------------------------------------------
 writeHorizontalFill()
 
