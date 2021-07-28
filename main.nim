@@ -493,28 +493,29 @@ block:
   defer: textFile.close
 
   textFile.write:
-    """
-    <Nim: Hello World>
+    dedent"""
+    # nim hello world
     import std/strformat
-    
-    let hello = "hello"
-    let world = "world"
-    
-    if true
-    ··stdout.write hello
-    ··stdout.write &"{world}\n"
-    """.unindent().replace(r"··", "  ")
+
+    let
+      hello = "hello"
+      world = "world"
+
+    if hello == "hello": stdout.write hello
+    stdout.write "{world}\n".fmt
+    """
 
   textFile.write:
-    """
-    
+    dedent"""
+
     <나비보벳따우 가사>
     나비보벳따우 봅 보벳띠 보빗 따우
     나비보벳따우 봅 보벳띠 나비벳 뽀
     휘휘휘휘휘휘휘~ 빗뽀벳 뻬~뺘빗뽀
-    """.unindent()
+    """
 
   textFile.setFilePos(0) # <- This is nessesary because readAll() start from the current file position.
+
   echo textFile.readAll()
 # -------------------------------------------------
 writeHorizontalFill()
