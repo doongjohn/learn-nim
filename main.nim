@@ -473,24 +473,24 @@ block:
 # -------------------------------------------------
 # method overloading
 # -------------------------------------------------
-  type
-    A = ref object of RootObj
-    B = ref object of A
+type
+  A = ref object of RootObj
+  B = ref object of A
 
-  method print(a1, a2: A) = echo "aa"
-  method print(a: A, b: B) = echo "ab"
+method print(a1, a2: A) = echo "aa"
+method print(a: A, b: B) = echo "ab"
 
-  method print(b1, b2: B) = echo "bb"
-  method print(b: B, a: A) = echo "ba"
+method print(b1, b2: B) = echo "bb"
+method print(b: B, a: A) = echo "ba"
 
-  let a = A()
-  let b = B()
+let a = A()
+let b = B()
 
-  a.print(b.A) # -> aa
-  b.print(b) # -> bb
-  a.print(b) # -> ab
-  b.A.print(b) # -> bb
-  b.print(b.A) # -> ba
+a.print(b.A) # -> aa
+b.print(b) # -> bb
+a.print(b) # -> ab
+b.A.print(b) # -> bb
+b.print(b.A) # -> ba
 # -------------------------------------------------
 writeHorizontalFill()
 
