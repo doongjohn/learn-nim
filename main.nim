@@ -514,7 +514,7 @@ block:
     휘휘휘휘휘휘휘~ 빗뽀벳 뻬~뺘빗뽀
     """
 
-  textFile.setFilePos(0) # <- This is nessesary because readAll() start from the current file position.
+  textFile.setFilePos(0) # <- This is nessesary because readAll() starts from the current file position.
 
   echo textFile.readAll()
 # -------------------------------------------------
