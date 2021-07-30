@@ -477,8 +477,8 @@ type
   A = ref object of RootObj
   B = ref object of A
 
-method print(a1, a2: A) = echo "aa"
-method print(a: A, b: B) = echo "ab"
+method print(a1, a2: A) {.base.} = echo "aa"
+method print(a: A, b: B) {.base.} = echo "ab"
 
 method print(b1, b2: B) = echo "bb"
 method print(b: B, a: A) = echo "ba"
