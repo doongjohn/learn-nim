@@ -23,16 +23,16 @@ static:
 # learning nim!
 # -------------------------------------------------
 echo "\nLearning Nim!!!"
-writeHorizontalFill()
-writeHorizontalFill("N I M / ")
-writeHorizontalFill()
+consoleFillHorizontal()
+consoleFillHorizontal("N I M / ")
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- string and array -"
-writeHorizontalFill()
+consoleFillHorizontal()
 # -------------------------------------------------
-# fromat string
+# string fromat
 # -------------------------------------------------
 block:
   let
@@ -96,12 +96,12 @@ block:
   echo someArray2
   echo someArray3
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- loop -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
 # -------------------------------------------------
 # while
@@ -130,34 +130,34 @@ block:
   for i, (k, v) in [(person: "You", power: 100), (person: "Me", power: 9000)]:
     echo "{k} have {v} power.".fmt
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- time -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
 # -------------------------------------------------
 # simple benchmark
 # -------------------------------------------------
-  let fibbNum = consoleReadLineParse(parseInt, "fibbonacci num: ")
+  let fibbNum = consoleReadLineParse("fibbonacci num: ", parseInt)
 
   proc fibbonacci(n: int): int =
     if n <= 1: n else: fibbonacci(n - 1) + fibbonacci(n - 2)
 
   timeCode: echo "fibbonacci {fibbNum} = {fibbonacci fibbNum}".fmt
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- std macro -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
 # -------------------------------------------------
 # with
 # -------------------------------------------------
-  var parsed = consoleReadLineParse(parseFloat, "write any number: ")
+  var parsed = consoleReadLineParse("write any number: ", parseFloat)
   with parsed:
     stdout.write " + 8 = "
     += 8
@@ -184,12 +184,12 @@ block:
   echo "\nGet Odd Numbers from {randomInts}".fmt
   echo "result: {oddSeq}".fmt
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- tuple -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
   # 주소 예시 소스: https://dorojuso.kr/서울특별시/서대문구/홍은제1동?page=67
   var homeAddress = (
@@ -207,12 +207,12 @@ block:
   (a, b) = (b, a)
   echo "{a = }, {b = }".fmt
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- defer -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
   defer:
     echo "#1.1 defer"
@@ -224,12 +224,12 @@ block:
     echo "#3.1 defer"
     echo "#3.2 defer"
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- template -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
   echo "Template Copy Pastes code"
 
@@ -244,12 +244,12 @@ block:
   testProc()
   defer: echo "#2 defer"
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- proc & func -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
   echo "proc & func can be nested:"
   proc outerProc() =
@@ -269,12 +269,12 @@ block:
   noSideEffectProc(someNumber)
   echo "someNumber: {someNumber}".fmt
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- lambda -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
   proc lambda(lambdaProc: () -> string, b: int) =
     echo lambdaProc()
@@ -309,12 +309,12 @@ block:
   #       |
   #       this is necessary for the multi line lambda with sugar.
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- shared closures -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
   template defSayText(text: string): untyped =
     proc sayText() =
@@ -328,21 +328,18 @@ block:
 
   let (sayText, setText) = block:
     var text = "Hello Nim!"
-    (
-      defSayText(text),
-      defSetText(text)
-    )
+    (defSayText(text), defSetText(text))
 
   sayText()
   setText("Hello world!")
   sayText()
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- options -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
   proc find(text: string, toFind: char): Option[int] =
     for i, c in text:
@@ -358,38 +355,40 @@ block:
   
   # echo found.get() # <- Exception because found is none.
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 #--------------------------------------------------
 # enum
 #--------------------------------------------------
 echo "\n- enums -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
   type SomeEnum = enum
     A = 0,
     B = 2,
     C = 3
 
+  # This code is not good...
   proc hasOrd(T: typedesc[enum], i: int): bool {.inline.} =
     try: result = $T(i) != "{i} (invalid data!)".fmt
     except: result = false
 
-  proc enumRange[T: enum](): Slice[int] {.inline.} = result = T.low.ord .. T.high.ord
+  proc range(T: typedesc[enum]): Slice[int] {.inline.} =
+    T.low.ord .. T.high.ord
 
-  for i in enumRange[SomeEnum]():
+  for i in SomeEnum.range:
     if not SomeEnum.hasOrd(i): continue
     stdout.write SomeEnum(i)
 
   echo ""
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- object -"
-writeHorizontalFill()
+consoleFillHorizontal()
 # -------------------------------------------------
 # value and reference type
 # -------------------------------------------------
@@ -404,18 +403,18 @@ block:
     PersonRef = ref Person
 
   proc setNameAndAge(
-      preson: var Person,
-      name: typeof(preson.name),
-      age: typeof(preson.age)
-    ) =
+    preson: var Person,
+    name: typeof preson.name,
+    age: typeof preson.age
+  ) =
     preson.name = name;
     preson.age = age;
 
   proc setNameAndAge(
-      preson: PersonRef,
-      name: typeof(preson.name),
-      age: typeof(preson.age)
-    ) =
+    preson: PersonRef,
+    name: typeof preson.name,
+    age: typeof preson.age
+  ) =
     preson.name = name;
     preson.age = age;
 
@@ -493,12 +492,12 @@ a.print(b) # -> ab
 b.A.print(b) # -> bb
 b.print(b.A) # -> ba
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 
 
 # -------------------------------------------------
 echo "\n- file read & write -"
-writeHorizontalFill()
+consoleFillHorizontal()
 block:
   let textFile = "./test.txt".open(fmReadWrite)
   defer: textFile.close
@@ -529,5 +528,5 @@ block:
 
   echo textFile.readAll()
 # -------------------------------------------------
-writeHorizontalFill()
+consoleFillHorizontal()
 

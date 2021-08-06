@@ -1,15 +1,18 @@
-import std/sugar
-import std/math
-import std/strutils
-import std/strformat
-import std/terminal
+import std/[
+  typetraits,
+  strutils,
+  strformat,
+  math,
+  sugar,
+  terminal
+]
 
 
-proc writeHorizontalFill*(fillWith: char = '-') =
+proc consoleFillHorizontal*(fillWith = '-') =
   stdout.write (fillWith.repeat max(0, terminalWidth() - 1)) & '\n'
 
 
-proc writeHorizontalFill*(fillWith: string, cutoff: bool = true) =
+proc consoleFillHorizontal*(fillWith: string, cutoff = true) =
   let width = terminalWidth() - 1
   if cutoff:
     let repeated = fillWith.repeat max(0, (width / fillWith.len).ceil().int)
@@ -18,33 +21,22 @@ proc writeHorizontalFill*(fillWith: string, cutoff: bool = true) =
     stdout.write (fillWith.repeat max(0, (width / fillWith.len)).int) & '\n'
 
 
-proc consoleReadLineParse*[T](parseProc: (string) -> T): T =
+proc consoleReadLineParse*[T](parseFn: (string) -> T): T =
   var input: string
   while true:
     try:
       input = stdin.readLine()
-      return input.parseProc()
+      return input.parseFn()
     except:
-      echo &"Can't parse \"{input}\" to type: \"{$T}\""
+      echo &"Can not parse \"{input}\" to type: \"{$T}\""
 
 
-proc consoleReadLineParse*[T](parseProc: (string) -> T, prompt: string): T =
-  var input: string
-  while true:
-    try:
-      stdout.write prompt
-      input = stdin.readLine()
-      return input.parseProc()
-    except:
-      echo &"Can't parse \"{input}\" to type: \"{$T}\""
-
-
-proc consoleReadLineParse*[T](parseProc: (string) -> T, prompt: string, errorMsg: (input: string) -> string): T =
+proc consoleReadLineParse*[T](prompt: string, parseFn: (string) -> T): T =
   var input: string
   while true:
     try:
       stdout.write prompt
       input = stdin.readLine()
-      return input.parseProc()
+      return input.parseFn()
     except:
-      echo errorMsg(input)
+      echo &"Can not parse \"{input}\" to type: \"{$T}\""
