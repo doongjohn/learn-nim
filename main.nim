@@ -11,11 +11,11 @@ import timecode
 import std/compilesettings
 
 static:
-  echo "[comp settings] outFile: ", querySetting(outFile) 
-  echo "[comp settings] outDir: ", querySetting(outDir) 
-  echo "[comp settings] projectName: ", querySetting(projectName) 
-  echo "[comp settings] outprojectPathFile: ", querySetting(projectPath) 
-  echo "[comp settings] projectFull: ", querySetting(projectFull) 
+  echo "[comp settings] outFile: ", querySetting(outFile)
+  echo "[comp settings] outDir: ", querySetting(outDir)
+  echo "[comp settings] projectName: ", querySetting(projectName)
+  echo "[comp settings] outprojectPathFile: ", querySetting(projectPath)
+  echo "[comp settings] projectFull: ", querySetting(projectFull)
   echo "[comp settings] command: ", querySetting(command)
 
 
@@ -26,6 +26,13 @@ echo "\nLearning Nim!!!"
 consoleFillHorizontal()
 consoleFillHorizontal("N I M / ")
 consoleFillHorizontal()
+
+const version1 = $NimVersion
+const version2 = $NimMajor & "." & $NimMinor & "." & $NimPatch
+
+echo "Nim Version"
+echo version1
+echo version2
 
 
 # -------------------------------------------------
@@ -352,7 +359,7 @@ block:
   if found.isSome:
     echo found.get()
     found = none(int) # <- Sets the option to none.
-  
+
   # echo found.get() # <- Exception because found is none.
 # -------------------------------------------------
 consoleFillHorizontal()
@@ -445,8 +452,8 @@ block:
   echo "PersonRef Seq:"
   for person in presonRefSeq: echo "name: {person.name}, age: {person.age}".fmt
 
-  # --gc:refc 
-  # This is the default GC. It's a deferred reference counting based garbage collector with a simple Mark&Sweep backup GC in order to collect cycles. 
+  # --gc:refc
+  # This is the default GC. It's a deferred reference counting based garbage collector with a simple Mark&Sweep backup GC in order to collect cycles.
   # Heaps are thread-local.
 
   # --gc:arc
