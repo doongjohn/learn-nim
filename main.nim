@@ -322,6 +322,26 @@ block:
   echo "{someNumber = }".fmt
   noSideEffectProc(someNumber)
   echo "{someNumber = }".fmt
+
+block:
+  # -------------------------------------------------
+  # optinal param
+  # -------------------------------------------------
+  echo "optinal param:"
+  proc optianlParam(v: int = 100) =
+    echo v
+  
+  optianlParam(1)
+  optianlParam()
+
+  proc optianlParamWithVoid(v: int | void = void) =
+    when v is void:
+      echo "void"
+    else:
+      echo v
+
+  optianlParamWithVoid(1)
+  optianlParamWithVoid()
 # -------------------------------------------------
 consoleFillHorizontal()
 
