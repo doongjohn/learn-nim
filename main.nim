@@ -1,15 +1,21 @@
-import std/sugar
-import std/with
-import std/options
-import std/strutils
-import std/strformat
+import std/[
+  compilesettings,
+  options,
+  strformat
+  strutils,
+  sugar,
+  with,
+]
 from std/unicode
   import toRunes, toUTF8, reversed
+
 import console/consoleutils
 import timecode
 
-import std/compilesettings
 
+# -------------------------------------------------
+# compile time code execution
+# -------------------------------------------------
 static:
   echo "[comp settings] outFile: ", querySetting(outFile)
   echo "[comp settings] outDir: ", querySetting(outDir)
@@ -18,30 +24,52 @@ static:
   echo "[comp settings] projectFull: ", querySetting(projectFull)
   echo "[comp settings] command: ", querySetting(command)
 
+  const version1 = $NimVersion
+  const version2 = $NimMajor & "." & $NimMinor & "." & $NimPatch
+  echo "Nim Version"
+  echo version1
+  echo version2
 
-# -------------------------------------------------
-# learning nim!
-# -------------------------------------------------
-echo "\nLearning Nim!!!"
+
+echo "\nLet's Learn Nim!!!"
 consoleFillHorizontal()
 consoleFillHorizontal("N I M / ")
 consoleFillHorizontal()
 
-const version1 = $NimVersion
-const version2 = $NimMajor & "." & $NimMinor & "." & $NimPatch
 
-echo "Nim Version"
-echo version1
-echo version2
+# -------------------------------------------------
+# tuple
+# -------------------------------------------------
+echo "\n- tuple -"
+consoleFillHorizontal()
+block:
+  # address source: https://dorojuso.kr/서울특별시/서대문구/홍은제1동?page=67
+  let homeAddress = (
+    street: "홍지문길",
+    buildingNumber: 7,
+    buildingName: "대진하이츠빌라"
+  )
+  echo "{homeAddress.street} {homeAddress.buildingNumber} {homeAddress.buildingName}\n".fmt
 
+  echo "swap values using tuples:"
+  var
+    a = 10
+    b = 20
+  echo "{a = }, {b = }".fmt
+  (a, b) = (b, a)
+  echo "{a = }, {b = }".fmt
+# -------------------------------------------------
+consoleFillHorizontal()
 
+# -------------------------------------------------
+# string and array
 # -------------------------------------------------
 echo "\n- string and array -"
 consoleFillHorizontal()
-# -------------------------------------------------
-# string fromat
-# -------------------------------------------------
 block:
+  # -------------------------------------------------
+  # string fromat
+  # -------------------------------------------------
   let
     hello = "   Hello Nim!   "
     someFloat = 0.123456
@@ -49,79 +77,179 @@ block:
   echo "someString: " & hello.strip() & "\nsomeFloat: " & someFloat.formatFloat(ffDecimal, 3) & "\n"
   echo "someString: {hello.strip()}\nsomeFloat: {someFloat.formatFloat(ffDecimal, 3)}\n".fmt
 
-# -------------------------------------------------
-# get each utf8 runes
-# -------------------------------------------------
 block:
+  # -------------------------------------------------
+  # get each utf8 runes
+  # -------------------------------------------------
   stdout.write "write unicode string: "
   let runes = stdin.readLine().toRunes() # unicode module
   for i, s in runes:
     echo "{i}: {s}".fmt
 
-# -------------------------------------------------
-# reverse string
-# -------------------------------------------------
-echo "\nreverse string:"
+block:
+  # -------------------------------------------------
+  # reverse string
+  # -------------------------------------------------
+  echo "\nreverse string:"
+  block sol1:
+    let input = "안녕 world!"
+    var output: string
+    for i in countdown(input.high, 0):
+      output.add input[i]
+    echo output
 
-block sol1:
-  let input = "Hello world!"
-  var output: string
-  for i in countdown(input.high, 0):
-    output.add input[i]
-  echo output
+  block sol2:
+    let input = "안녕 world!"
+    var output: string
+    for c in input:
+      output = c & output
+    echo output
 
-block sol2:
-  let input = "Hello world!"
-  var output: string
-  for c in input:
-    output = c & output
-  echo output
+  block sol3:
+    let input = "안녕 world!"
+    var output = newString input.len
+    for i, c in input:
+      output[output.high - i] = c
+    echo output
 
-block sol3:
-  let input = "Hello world!"
-  var output = newString input.len
-  for i, c in input:
-    output[output.high - i] = c
-  echo output
-
-block sol4:
-  let input = "Hello world!"
-  let output = input.reversed # unicode module
-  echo output
-
-# -------------------------------------------------
-# slice
-# -------------------------------------------------
-echo "\narray slice:"
+  block sol4:
+    let input = "안녕 world!"
+    let output = input.reversed # unicode module
+    echo output
 
 block:
-  var someArray = "Hello world!"
-  var someArray2 = someArray[0 .. ^5]
-  var someArray3 = someArray[0 .. 3] & someArray[7 .. 10]
+  # -------------------------------------------------
+  # array slice
+  # -------------------------------------------------
+  echo "\narray slice:"
 
+  let someArray = "Hello world!"
   echo someArray
+
+  let someArray2 = someArray[0 .. ^5]
   echo someArray2
+
+  let someArray3 = someArray[0 .. 3] & someArray[7 .. 10]
   echo someArray3
 # -------------------------------------------------
 consoleFillHorizontal()
 
 
+#--------------------------------------------------
+# enum
+#--------------------------------------------------
+echo "\n- enums -"
+consoleFillHorizontal()
+block:
+  type SomeEnum = enum
+    A = 0,
+    B = 2,
+    C = 3
+
+  # NOTE: This code is not good...
+  proc hasOrd(T: typedesc[enum], i: int): bool {.inline.} =
+    try: result = $T(i) != "{i} (invalid data!)".fmt
+    except: result = false
+
+  proc range(T: typedesc[enum]): Slice[int] {.inline.} =
+    T.low.ord .. T.high.ord
+
+  for i in SomeEnum.range:
+    if not SomeEnum.hasOrd(i): continue
+    stdout.write SomeEnum(i)
+
+  echo ""
+# -------------------------------------------------
+consoleFillHorizontal()
+
+
+#--------------------------------------------------
+# object
+#--------------------------------------------------
+echo "\n- object -"
+consoleFillHorizontal()
+block:
+  type
+    # value type (memory is allocated in the stack)
+    Person = object
+      name: string
+
+    # reference type (memory is allocated in the heap. memory is managed by the gc)
+    PersonRef = ref object
+      name: string
+    # --gc:refc
+    # This is the default GC. It's a deferred reference counting based garbage collector with a simple Mark&Sweep backup GC in order to collect cycles.
+    # Heaps are thread-local.
+    # --gc:arc
+    # Plain reference counting with move semantic optimizations, offers a shared heap.
+    # It offers deterministic performance for hard realtime systems. Reference cycles cause memory leaks, beware.
+    # --gc:orc
+    # Same as --gc:arc but adds a cycle collector based on "trial deletion".
+    # Unfortunately, that makes its performance profile hard to reason about so it is less useful for hard real-time systems.
+
+  var person = Person(name: "John", age: 20)
+  var personRef = PersonRef(name: "Bob", age: 10)
+
+  var person2 = person       # value types are copied when assigned
+  var personRef2 = personRef # reference types point to same memory even when assigned to new variable
+
+  echo "\ninitial object values\n"
+  echo "name: {person.name}".fmt
+  echo "name: {personRef.name}".fmt
+
+  # modify person2 object
+  person2.name = "modified John"
+  personRef2.name = "modified Bob"
+
+  echo "\ninitial object values\n"
+  echo "name: {person.name}".fmt
+  echo "name: {personRef.name}".fmt
+
+  echo "\nassigned object values\n"
+  echo "name: {person2.name}".fmt
+  echo "name: {personRef2.name}".fmt
+
+
+# -------------------------------------------------
+# option
+# -------------------------------------------------
+echo "\n- option -"
+consoleFillHorizontal()
+block:
+  proc find(text: string, toFind: char): Option[int] =
+    for i, c in text:
+      if c == toFind:
+        return some(i)
+    return none(int) # This line is actually optional,
+                      # because the default is none
+
+  var found = "abc".find('c')
+  if found.isSome:
+    echo found.get()
+    found = none(int) # <- Sets the option to none.
+  # echo found.get() # <- Exception because found is none.
+# -------------------------------------------------
+consoleFillHorizontal()
+
+
+# -------------------------------------------------
+# loop
 # -------------------------------------------------
 echo "\n- loop -"
 consoleFillHorizontal()
 block:
-# -------------------------------------------------
-# while
-# -------------------------------------------------
+  # -------------------------------------------------
+  # while
+  # -------------------------------------------------
   echo "while loop"
   while true:
     echo "break"
     break
   echo ""
 
-# -------------------------------------------------
-# for
-# -------------------------------------------------
+  # -------------------------------------------------
+  # for
+  # -------------------------------------------------
   echo "classic for loop"
   for i in 0 ..< 10:
     stdout.write $i & " "
@@ -141,12 +269,14 @@ consoleFillHorizontal()
 
 
 # -------------------------------------------------
+# time
+# -------------------------------------------------
 echo "\n- time -"
 consoleFillHorizontal()
 block:
-# -------------------------------------------------
-# simple benchmark
-# -------------------------------------------------
+  # -------------------------------------------------
+  # simple benchmark
+  # -------------------------------------------------
   let fibbNum = consoleReadLineParse("fibbonacci num: ", parseInt)
 
   proc fibbonacci(n: int): int =
@@ -158,107 +288,15 @@ consoleFillHorizontal()
 
 
 # -------------------------------------------------
-echo "\n- std macro -"
+# proc
+# -------------------------------------------------
+echo "\n- proc -"
 consoleFillHorizontal()
 block:
-# -------------------------------------------------
-# with
-# -------------------------------------------------
-  var parsed = consoleReadLineParse("write any number: ", parseFloat)
-  with parsed:
-    stdout.write " + 8 = "
-    += 8
-    echo
-    stdout.write " - 20 = "
-    -= 20
-    echo
-    stdout.write " * 2 = "
-    *= 2
-    echo
-    stdout.write " / 3 = "
-    /= 3
-    echo
-
-# -------------------------------------------------
-# collect
-# -------------------------------------------------
-  let randomInts = [1, 21, 312, 12, 10, 14, 45]
-  let oddSeq = collect newSeq:
-    for i in randomInts:
-      if i mod 2 != 0:
-        i
-
-  echo "\nGet Odd Numbers from {randomInts}".fmt
-  echo "result: {oddSeq}".fmt
-# -------------------------------------------------
-consoleFillHorizontal()
-
-
-# -------------------------------------------------
-echo "\n- tuple -"
-consoleFillHorizontal()
-block:
-  # 주소 예시 소스: https://dorojuso.kr/서울특별시/서대문구/홍은제1동?page=67
-  var homeAddress = (
-    street: "홍지문길",
-    buildingNumber: 7,
-    buildingName: "대진하이츠빌라"
-  )
-  echo "{homeAddress.street} {homeAddress.buildingNumber} {homeAddress.buildingName}\n".fmt
-
-  echo "Value swap using Tuple:"
-  var
-    a = 10
-    b = 20
-  echo "{a = }, {b = }".fmt
-  (a, b) = (b, a)
-  echo "{a = }, {b = }".fmt
-# -------------------------------------------------
-consoleFillHorizontal()
-
-
-# -------------------------------------------------
-echo "\n- defer -"
-consoleFillHorizontal()
-block:
-  defer:
-    echo "#1.1 defer"
-    echo "#1.2 defer"
-  defer:
-    echo "#2.1 defer"
-    echo "#2.2 defer"
-  defer:
-    echo "#3.1 defer"
-    echo "#3.2 defer"
-# -------------------------------------------------
-consoleFillHorizontal()
-
-
-# -------------------------------------------------
-echo "\n- template -"
-consoleFillHorizontal()
-block:
-  echo "Template Copy Pastes code"
-
-  template test() =
-    defer: echo "template defer"
-
-  proc testProc() =
-    defer: echo "proc defer"
-
-  defer: echo "#1 defer"
-  test()
-  testProc()
-  defer: echo "#2 defer"
-# -------------------------------------------------
-consoleFillHorizontal()
-
-
-# -------------------------------------------------
-echo "\n- proc & func -"
-consoleFillHorizontal()
-block:
-  echo "proc & func can be nested:"
+  # -------------------------------------------------
+  # nested proc
+  # -------------------------------------------------
+  echo "proc can be nested:"
   proc outerProc() =
     proc innerProc() =
       echo "inner proc"
@@ -267,31 +305,42 @@ block:
 
   outerProc()
 
-  echo "\nfunc can't have side effect but can still change the var(c#: ref) parameter:"
+  # -------------------------------------------------
+  # func
+  # -------------------------------------------------
   var someNumber = 10
+
+  echo "\nfunc can't have side effect but can still change the var parameter:"
+  # var parameters are like C# ref parameters
+  # `func procName = ...` is equal to `proc procName {.noSideEffect.} = ...`
   func noSideEffectProc(param: var int) =
     param = 100
+    # someNumber = 1
+    # ^^^^^^^^^^^^^^
+    # └─> side effect found! (this is compile time error)
 
-  echo "someNumber: {someNumber}".fmt
+  echo "{someNumber = }".fmt
   noSideEffectProc(someNumber)
-  echo "someNumber: {someNumber}".fmt
+  echo "{someNumber = }".fmt
 # -------------------------------------------------
 consoleFillHorizontal()
 
 
 # -------------------------------------------------
-echo "\n- lambda -"
+# lambda (anonymous function)
+# -------------------------------------------------
+echo "\n- lambda (anonymous function) -"
 consoleFillHorizontal()
 block:
-  proc lambda(lambdaProc: () -> string, b: int) =
+  proc runLambda(lambdaProc: () -> string, b: int) =
     echo lambdaProc()
 
-  echo "Singleline Lambda:"
-  lambda(proc: string = "result", 10)
-  lambda(() => "result (sugar)", 10)
+  echo "single-line lambda:"
+  runLambda(proc: string = "result", 10)
+  runLambda(() => "result (sugar)", 10)
 
-  echo "\nMultiline Lambda:"
-  lambda(
+  echo "\nmulti-line lambda:"
+  runLambda(
     proc: string =
       echo "echo"
       if true:
@@ -300,8 +349,10 @@ block:
         "Nope",
     10
   )
-  lambda(
+  runLambda(
     () => (block:
+    #      ^^^^^^
+    #      └─> this is necessary for the multi line lambda with sugar.
       echo "echo (sugar) "
       if true:
         "result (sugar)"
@@ -310,17 +361,14 @@ block:
     ),
     10
   )
-  # when using a sugar syntax
-  # () => (block: ...)
-  #       ^^^^^^^^^^^^
-  #       |
-  #       this is necessary for the multi line lambda with sugar.
 # -------------------------------------------------
 consoleFillHorizontal()
 
 
 # -------------------------------------------------
-echo "\n- shared closures -"
+# closure
+# -------------------------------------------------
+echo "\n- shared closure -"
 consoleFillHorizontal()
 block:
   template defSayText(text: string): untyped =
@@ -345,139 +393,7 @@ consoleFillHorizontal()
 
 
 # -------------------------------------------------
-echo "\n- options -"
-consoleFillHorizontal()
-block:
-  proc find(text: string, toFind: char): Option[int] =
-    for i, c in text:
-      if c == toFind:
-        return some(i)
-    return none(int) # This line is actually optional,
-                      # because the default is none
-
-  var found = "abc".find('c')
-  if found.isSome:
-    echo found.get()
-    found = none(int) # <- Sets the option to none.
-
-  # echo found.get() # <- Exception because found is none.
-# -------------------------------------------------
-consoleFillHorizontal()
-
-
-#--------------------------------------------------
-# enum
-#--------------------------------------------------
-echo "\n- enums -"
-consoleFillHorizontal()
-block:
-  type SomeEnum = enum
-    A = 0,
-    B = 2,
-    C = 3
-
-  # This code is not good...
-  proc hasOrd(T: typedesc[enum], i: int): bool {.inline.} =
-    try: result = $T(i) != "{i} (invalid data!)".fmt
-    except: result = false
-
-  proc range(T: typedesc[enum]): Slice[int] {.inline.} =
-    T.low.ord .. T.high.ord
-
-  for i in SomeEnum.range:
-    if not SomeEnum.hasOrd(i): continue
-    stdout.write SomeEnum(i)
-
-  echo ""
-# -------------------------------------------------
-consoleFillHorizontal()
-
-
-# -------------------------------------------------
-echo "\n- object -"
-consoleFillHorizontal()
-# -------------------------------------------------
-# value and reference type
-# -------------------------------------------------
-block:
-  type
-    # value type
-    Person = object
-      name: string
-      age: int
-
-    # reference type
-    PersonRef = ref Person
-
-  proc setNameAndAge(
-    preson: var Person,
-    name: typeof preson.name,
-    age: typeof preson.age
-  ) =
-    preson.name = name;
-    preson.age = age;
-
-  proc setNameAndAge(
-    preson: PersonRef,
-    name: typeof preson.name,
-    age: typeof preson.age
-  ) =
-    preson.name = name;
-    preson.age = age;
-
-  var personA = Person(name: "A", age: 10)
-  var personB = Person(name: "B", age: 20)
-  var personRefA = PersonRef(name: "A", age: 10)
-  var personRefB = PersonRef(name: "B", age: 20)
-
-  var presonSeq = newSeq[Person]()
-  var presonRefSeq = newSeq[PersonRef]()
-  presonSeq.add([personA, personB])
-  presonRefSeq.add([personRefA, personRefB])
-
-  echo "Person Seq:"
-  for person in presonSeq: echo "name: {person.name}, age: {person.age}".fmt
-  echo "PersonRef Seq:"
-  for person in presonRefSeq: echo "name: {person.name}, age: {person.age}".fmt
-
-  # Modify original data
-  personA.setNameAndAge("WOW_A", 100)
-  personB.setNameAndAge("WOW_B", 200)
-  personRefB.setNameAndAge("WOW_RefB", 200)
-  personRefB.setNameAndAge("WOW_RefB", 200)
-  echo "\nAfter modifing the original objects...\n"
-
-  echo "Person Seq:"
-  for person in presonSeq: echo "name: {person.name}, age: {person.age}".fmt
-  echo "PersonRef Seq:"
-  for person in presonRefSeq: echo "name: {person.name}, age: {person.age}".fmt
-
-  # --gc:refc
-  # This is the default GC. It's a deferred reference counting based garbage collector with a simple Mark&Sweep backup GC in order to collect cycles.
-  # Heaps are thread-local.
-
-  # --gc:arc
-  # Plain reference counting with move semantic optimizations, offers a shared heap.
-  # It offers deterministic performance for hard realtime systems. Reference cycles cause memory leaks, beware.
-
-  # --gc:orc
-  # Same as --gc:arc but adds a cycle collector based on "trial deletion".
-  # Unfortunately, that makes its performance profile hard to reason about so it is less useful for hard real-time systems.
-
-  echo "\nAfter setting the refs to nil...\n"
-  personRefA = nil;
-  personRefB = nil;
-  for i in 0 ..< presonRefSeq.len: presonRefSeq[i] = nil
-
-  echo "PersonRef Seq:"
-  for person in presonRefSeq:
-    if person != nil:
-      echo "name: {person.name}, age: {person.age}".fmt
-    else:
-      echo "nil"
-
-# -------------------------------------------------
-# method overloading
+# method
 # -------------------------------------------------
 type
   A = ref object of RootObj
@@ -503,7 +419,89 @@ consoleFillHorizontal()
 
 
 # -------------------------------------------------
-echo "\n- file read & write -"
+# defer
+# -------------------------------------------------
+echo "\n- defer -"
+consoleFillHorizontal()
+block:
+  defer:
+    echo "#1.1 defer"
+    echo "#1.2 defer"
+  defer:
+    echo "#2.1 defer"
+    echo "#2.2 defer"
+  defer:
+    echo "#3.1 defer"
+    echo "#3.2 defer"
+# -------------------------------------------------
+consoleFillHorizontal()
+
+
+# -------------------------------------------------
+# template
+# -------------------------------------------------
+echo "\n- template -"
+consoleFillHorizontal()
+block:
+  echo "Template Copy Pastes code"
+
+  template test() =
+    defer: echo "template defer"
+
+  proc testProc() =
+    defer: echo "proc defer"
+
+  defer: echo "#1 defer"
+  test()
+  testProc()
+  defer: echo "#2 defer"
+# -------------------------------------------------
+consoleFillHorizontal()
+
+
+# -------------------------------------------------
+# std macro
+# -------------------------------------------------
+echo "\n- std macro -"
+consoleFillHorizontal()
+block:
+  # -------------------------------------------------
+  # with
+  # -------------------------------------------------
+  var parsed = consoleReadLineParse("write any number: ", parseFloat)
+  with parsed:
+    stdout.write " + 8 = "
+    += 8
+    echo
+    stdout.write " - 20 = "
+    -= 20
+    echo
+    stdout.write " * 2 = "
+    *= 2
+    echo
+    stdout.write " / 3 = "
+    /= 3
+    echo
+
+  # -------------------------------------------------
+  # collect
+  # -------------------------------------------------
+  let randomInts = [1, 21, 312, 12, 10, 14, 45]
+  let oddSeq = collect newSeq:
+    for i in randomInts:
+      if i mod 2 != 0:
+        i
+
+  echo "\nGet Odd Numbers from {randomInts}".fmt
+  echo "result: {oddSeq}".fmt
+# -------------------------------------------------
+consoleFillHorizontal()
+
+
+# -------------------------------------------------
+# file io
+# -------------------------------------------------
+echo "\n- file io -"
 consoleFillHorizontal()
 block:
   let textFile = "./test.txt".open(fmReadWrite)
@@ -531,9 +529,7 @@ block:
     휘휘휘휘휘휘휘~ 빗뽀벳 뻬~뺘빗뽀
     """
 
-  textFile.setFilePos(0) # <- This is nessesary because readAll() starts from the current file position.
-
+  textFile.setFilePos(0) # reset file position because readAll() starts from the current file position.
   echo textFile.readAll()
 # -------------------------------------------------
 consoleFillHorizontal()
-
