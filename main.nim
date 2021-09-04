@@ -68,6 +68,19 @@ echo "\n- string and array -"
 consoleFillHorizontal()
 block:
   # -------------------------------------------------
+  # array type
+  # -------------------------------------------------
+  type Arr = array[-3 .. 4, int] # array index can start with any number (for example -3)
+  echo "{Arr.low = }, {Arr.high = }".fmt
+  var a: Arr
+  a = [1, 2, 3, 4, 5, 6, 7, 8]
+  echo "{a.low = }, {a.high = }".fmt
+  echo "{a = }".fmt
+  echo "{a[0] = }, {a[^1] = }".fmt
+  echo "{a[a.low] = }, {a[a.high] = }".fmt
+
+block:
+  # -------------------------------------------------
   # string fromat
   # -------------------------------------------------
   let
