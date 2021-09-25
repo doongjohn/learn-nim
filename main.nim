@@ -1,13 +1,12 @@
-import std/[
-  compilesettings,
-  options,
-  strformat
-  strutils,
-  sugar,
-  with,
-]
+import std/compilesettings
+import std/enumutils
+import std/strutils
+import std/strformat
+import std/options
+import std/sugar
+import std/with
 from std/unicode
-  import toRunes, toUTF8, reversed
+  import Rune, toRunes, toUTF8, `$`, reversed
 
 import console/consoleutils
 import timecode
@@ -88,7 +87,7 @@ block:
     someFloat = 0.123456
 
   echo "someString: " & hello.strip() & "\nsomeFloat: " & someFloat.formatFloat(ffDecimal, 3) & "\n"
-  echo "someString: {hello.strip()}\nsomeFloat: {someFloat.formatFloat(ffDecimal, 3)}\n".fmt
+  echo "someString: {hello.strip()}\n".fmt & "someFloat: {someFloat.formatFloat(ffDecimal, 3)}\n".fmt
 
 block:
   # -------------------------------------------------
@@ -105,22 +104,22 @@ block:
   # -------------------------------------------------
   echo "\nreverse string:"
   block sol1:
-    let input = "안녕 world!"
+    let input = "안녕 world!".toRunes()
     var output: string
     for i in countdown(input.high, 0):
-      output.add input[i]
+      output.add $input[i]
     echo output
 
   block sol2:
-    let input = "안녕 world!"
+    let input = "안녕 world!".toRunes()
     var output: string
     for c in input:
-      output = c & output
+      output = $c & $output
     echo output
 
   block sol3:
-    let input = "안녕 world!"
-    var output = newString input.len
+    let input = "안녕 world!".toRunes()
+    var output = newSeq[Rune] input.len
     for i, c in input:
       output[output.high - i] = c
     echo output
@@ -154,23 +153,13 @@ consoleFillHorizontal()
 echo "\n- enums -"
 consoleFillHorizontal()
 block:
-  type SomeEnum = enum
+  type SomeEnum = enum # enum with holes
     A = 0,
     B = 2,
     C = 3
 
-  # NOTE: This code is not good...
-  proc hasOrd(T: typedesc[enum], i: int): bool {.inline.} =
-    try: result = $T(i) != "{i} (invalid data!)".fmt
-    except: result = false
-
-  proc range(T: typedesc[enum]): Slice[int] {.inline.} =
-    T.low.ord .. T.high.ord
-
-  for i in SomeEnum.range:
-    if not SomeEnum.hasOrd(i): continue
-    stdout.write SomeEnum(i)
-
+  for i in SomeEnum.items: # enumutils module
+    stdout.write i
   echo ""
 # -------------------------------------------------
 consoleFillHorizontal()
@@ -200,8 +189,8 @@ block:
     # Same as --gc:arc but adds a cycle collector based on "trial deletion".
     # Unfortunately, that makes its performance profile hard to reason about so it is less useful for hard real-time systems.
 
-  var person = Person(name: "John", age: 20)
-  var personRef = PersonRef(name: "Bob", age: 10)
+  var person = Person(name: "John")
+  var personRef = PersonRef(name: "Bob")
 
   var person2 = person       # value types are copied when assigned
   var personRef2 = personRef # reference types point to same memory even when assigned to new variable
@@ -282,20 +271,42 @@ consoleFillHorizontal()
 
 
 # -------------------------------------------------
-# time
+# defer
 # -------------------------------------------------
-echo "\n- time -"
+echo "\n- defer -"
 consoleFillHorizontal()
 block:
-  # -------------------------------------------------
-  # simple benchmark
-  # -------------------------------------------------
-  let fibbNum = consoleReadLineParse("fibbonacci num: ", parseInt)
+  defer:
+    echo "#1.1 defer"
+    echo "#1.2 defer"
+  defer:
+    echo "#2.1 defer"
+    echo "#2.2 defer"
+  defer:
+    echo "#3.1 defer"
+    echo "#3.2 defer"
+# -------------------------------------------------
+consoleFillHorizontal()
 
-  proc fibbonacci(n: int): int =
-    if n <= 1: n else: fibbonacci(n - 1) + fibbonacci(n - 2)
 
-  timeCode: echo "fibbonacci {fibbNum} = {fibbonacci fibbNum}".fmt
+# -------------------------------------------------
+# template
+# -------------------------------------------------
+echo "\n- template -"
+consoleFillHorizontal()
+block:
+  echo "Template Copy Pastes code"
+
+  template test() =
+    defer: echo "template defer"
+
+  proc testProc() =
+    defer: echo "proc defer"
+
+  defer: echo "#1 defer"
+  test()
+  testProc()
+  defer: echo "#2 defer"
 # -------------------------------------------------
 consoleFillHorizontal()
 
@@ -321,13 +332,12 @@ block:
   # -------------------------------------------------
   # func
   # -------------------------------------------------
-  var someNumber = 10
-
   echo "\nfunc can't have side effect but can still change the var parameter:"
   # var parameters are like C# ref parameters
   # `func procName = ...` is equal to `proc procName {.noSideEffect.} = ...`
+  var someNumber = 10
   func noSideEffectProc(param: var int) =
-    param = 100
+    param = 100 # modifying the `var parameter` does not count as side effect. (good? bad? I'm not sure...)
     # someNumber = 1
     # ^^^^^^^^^^^^^^
     # └─> side effect found! (this is compile time error)
@@ -365,15 +375,17 @@ consoleFillHorizontal()
 echo "\n- lambda (anonymous function) -"
 consoleFillHorizontal()
 block:
-  proc runLambda(lambdaProc: () -> string, b: int) =
-    echo lambdaProc()
+  proc runFn(fn: () -> string, b: int) =
+    #            ^^^^^^^^^^^^
+    #            └─> this is same as `proc(): string`
+    echo fn()
 
   echo "single-line lambda:"
-  runLambda(proc: string = "result", 10)
-  runLambda(() => "result (sugar)", 10)
+  runFn(proc: string = "result", 10)
+  runFn(() => "result (sugar)", 10)
 
   echo "\nmulti-line lambda:"
-  runLambda(
+  runFn(
     proc: string =
       echo "echo"
       if true:
@@ -382,10 +394,10 @@ block:
         "Nope",
     10
   )
-  runLambda(
+  runFn(
     () => (block:
     #      ^^^^^^
-    #      └─> this is necessary for the multi line lambda with sugar.
+    #      └─> this is necessary for the multi line lambda using `() =>` sugar.
       echo "echo (sugar) "
       if true:
         "result (sugar)"
@@ -400,7 +412,29 @@ consoleFillHorizontal()
 
 # -------------------------------------------------
 # closure
+# doc: https://nim-lang.org/docs/manual.html#procedures-closures
 # -------------------------------------------------
+echo "\n- closure capture"
+block:
+  var fns: array[10, proc()]
+
+  echo "loop without capture:"
+  for i in 0 .. fns.high:
+    fns[i] = proc() =
+      stdout.write i, " "
+
+  for f in fns: f()
+  echo ""
+
+  echo "loop with capture:"
+  for i in 0 .. fns.high:
+    capture i:
+      fns[i] = proc() =
+        stdout.write i, " "
+
+  for f in fns: f()
+  echo ""
+
 echo "\n- shared closure -"
 consoleFillHorizontal()
 block:
@@ -452,47 +486,6 @@ consoleFillHorizontal()
 
 
 # -------------------------------------------------
-# defer
-# -------------------------------------------------
-echo "\n- defer -"
-consoleFillHorizontal()
-block:
-  defer:
-    echo "#1.1 defer"
-    echo "#1.2 defer"
-  defer:
-    echo "#2.1 defer"
-    echo "#2.2 defer"
-  defer:
-    echo "#3.1 defer"
-    echo "#3.2 defer"
-# -------------------------------------------------
-consoleFillHorizontal()
-
-
-# -------------------------------------------------
-# template
-# -------------------------------------------------
-echo "\n- template -"
-consoleFillHorizontal()
-block:
-  echo "Template Copy Pastes code"
-
-  template test() =
-    defer: echo "template defer"
-
-  proc testProc() =
-    defer: echo "proc defer"
-
-  defer: echo "#1 defer"
-  test()
-  testProc()
-  defer: echo "#2 defer"
-# -------------------------------------------------
-consoleFillHorizontal()
-
-
-# -------------------------------------------------
 # std macro
 # -------------------------------------------------
 echo "\n- std macro -"
@@ -532,6 +525,25 @@ consoleFillHorizontal()
 
 
 # -------------------------------------------------
+# time
+# -------------------------------------------------
+echo "\n- time -"
+consoleFillHorizontal()
+block:
+  # -------------------------------------------------
+  # simple benchmark
+  # -------------------------------------------------
+  let fibbNum = consoleReadLineParse("fibbonacci num: ", parseInt)
+
+  proc fibbonacci(n: int): int =
+    if n <= 1: n else: fibbonacci(n - 1) + fibbonacci(n - 2)
+
+  timeCode: echo "fibbonacci {fibbNum} = {fibbonacci fibbNum}".fmt
+# -------------------------------------------------
+consoleFillHorizontal()
+
+
+# -------------------------------------------------
 # file io
 # -------------------------------------------------
 echo "\n- file io -"
@@ -562,7 +574,7 @@ block:
     휘휘휘휘휘휘휘~ 빗뽀벳 뻬~뺘빗뽀
     """
 
-  textFile.setFilePos(0) # reset file position because readAll() starts from the current file position.
+  textFile.setFilePos(0) # set the file position to 0 because readAll() starts from the current file position.
   echo textFile.readAll()
 # -------------------------------------------------
 consoleFillHorizontal()
