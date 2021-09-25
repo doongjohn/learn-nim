@@ -8,8 +8,8 @@ import std/with
 from std/unicode
   import Rune, toRunes, toUTF8, `$`, reversed
 
-import console/consoleutils
-import timecode
+import utils/consoleutils
+import utils/timecode
 
 
 # -------------------------------------------------

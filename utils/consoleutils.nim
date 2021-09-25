@@ -1,11 +1,9 @@
-import std/[
-  typetraits,
-  strutils,
-  strformat,
-  math,
-  sugar,
-  terminal
-]
+import std/math
+import std/typetraits
+import std/strutils
+import std/strformat
+import std/sugar
+import std/terminal
 
 
 proc consoleFillHorizontal*(fillWith = '-') =
