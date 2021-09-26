@@ -413,6 +413,7 @@ consoleFillHorizontal()
 # -------------------------------------------------
 # closure
 # doc: https://nim-lang.org/docs/manual.html#procedures-closures
+# doc: https://nim-lang.org/docs/manual.html#closures-creating-closures-in-loops
 # -------------------------------------------------
 echo "\n- closure capture"
 block:
